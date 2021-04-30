@@ -279,8 +279,14 @@ function sumFibs(num) {
   var prevNum = 0;
   var currNum= 1;
   var result = 0;
-
-
+while(currNum <= num) {
+  if(currNum % 2 !==0){
+    result += currNum;
+  } 
+  currNum += prevNum;
+  prevNum = currNum - prevNum
+}
+return result;
 
   }
   
@@ -294,11 +300,15 @@ function sumFibs(num) {
 // Rewrite sumPrimes so it returns the sum of all prime numbers that are less than or equal to num.
 
 function sumPrimes(num) {
-    return num;
+  function isPrime(num) {
+    for (let i = 2; i <= Math.sqrt(num); i++) {
+      if (num % i == 0)
+        return false;
+    }
+    return true;
   }
-  
-  sumPrimes(10);
 
+ 
 //   14. Intermediate Algorithm Scripting: Smallest Common Multiple
 // Find the smallest common multiple of the provided parameters that can be evenly divided by both, as well as by all sequential numbers in the range between these parameters.
 
@@ -306,22 +316,56 @@ function sumPrimes(num) {
 
 // For example, if given 1 and 3, find the smallest common multiple of both 1 and 3 that is also evenly divisible by all numbers between 1 and 3. The answer here would be 6.
 
+Smallest Common Multiple
 function smallestCommons(arr) {
-    return arr;
+  // Setup
+  const [min, max] = arr.sort((a, b) => a - b);
+  const numberDivisors = max - min + 1;
+  // Largest possible value for SCM
+  let upperBound = 1;
+  for (let i = min; i <= max; i++) {
+    upperBound *= i;
   }
-  
-  
-  smallestCommons([1,5]);
+  // Test all multiples of 'max'
+  for (let multiple = max; multiple <= upperBound; multiple += max) {
+    // Check if every value in range divides 'multiple'
+    let divisorCount = 0;
+    for (let i = min; i <= max; i++) {
+      // Count divisors
+      if (multiple % i === 0) {
+        divisorCount += 1;
+      }
+    }
+    if (divisorCount === numberDivisors) {
+      return multiple;
+    }
+  }
+}
+
+smallestCommons([1, 5]);
+
+
+
+
 
 //   15. Intermediate Algorithm Scripting: Drop it
 //   Given the array arr, iterate through and remove each element starting from the first element (the 0 index) until the function func returns true when the iterated element is passed through it.
   
 //   Then return the rest of the array once the condition is satisfied, otherwise, arr should be returned as an empty array.
+
 function dropElements(arr, func) {
-    return arr;
+  while (arr.length > 0 && !func(arr[0])) {
+    arr.shift();
   }
-  
-  dropElements([1, 2, 3], function(n) {return n < 3; });
+  return arr;
+}
+
+dropElements([1, 2, 3, 4], function(n) {
+  return n >= 3;
+});
+
+
+
 
 
 
@@ -329,10 +373,12 @@ function dropElements(arr, func) {
 // Flatten a nested array. You must account for varying levels of nesting.
 
 function steamrollArray(arr) {
-    return arr;
-  }
-  
-  steamrollArray([1, [2], [3, [[4]]]]);
+  const flat = [].concat(...arr);
+  return flat.some(Array.isArray) ? steamrollArray(flat) : flat;
+}
+
+steamrollArray([1, [2], [3, [[4]]]]);
+
 
 
 
@@ -346,6 +392,23 @@ function binaryAgent(str) {
   
   binaryAgent("01000001 01110010 01100101 01101110 00100111 01110100 00100000 01100010 01101111 01101110 01100110 01101001 01110010 01100101 01110011 00100000 01100110 01110101 01101110 00100001 00111111");
 
+  function binaryAgent(str) {
+    var biString = str.split(" ");
+    var uniString = [];
+        
+    for (var i = 0; i < biString.length; i++) {
+      uniString.push(String.fromCharCode(parseInt(biString[i], 2)));
+    }
+  
+        return uniString.join("");
+  }
+   
+  binaryAgent(
+    "01000001 01110010 01100101 01101110 00100111 01110100 00100000 01100010 01101111 01101110 01100110 01101001 01110010 01100101 01110011 00100000 01100110 01110101 01101110 00100001 00111111"
+  );
+
+
+
 
 //   18.Intermediate Algorithm Scripting: Everything Be True
 // Check if the predicate (second argument) is truthy on all elements of a collection (first argument).
@@ -356,13 +419,34 @@ function binaryAgent(str) {
 
 // Remember, you can access object properties through either dot notation or [] notation.
 
-function truthCheck(collection, pre) {
-    return pre;
+
+
+  Everything Be true
+  function truthCheck(collection, pre) {
+    
+    var counter = 0;
+    
+    for (var c in collection) {
+    
+      if (collection[c].hasOwnProperty(pre) && Boolean(collection[c][pre])) {
+        counter++;
+      }
+    }
+    
+    return counter == collection.length;
   }
   
-  truthCheck([{"user": "Tinky-Winky", "sex": "male"}, {"user": "Dipsy", "sex": "male"}, {"user": "Laa-Laa", "sex": "female"}, {"user": "Po", "sex": "female"}], "sex");
+   truthCheck(
+    [
+      { user: "Tinky-Winky", sex: "male" },
+      { user: "Dipsy", sex: "male" },
+      { user: "Laa-Laa", sex: "female" },
+      { user: "Po", sex: "female" }
+    ],
+    "sex"
+  );
 
-  
+
 
 //   19.Intermediate Algorithm Scripting: Arguments Optional
 // Create a function that sums two arguments together. If only one argument is provided, then return a function that expects one argument and returns the sum.
@@ -378,12 +462,23 @@ function truthCheck(collection, pre) {
 // If either argument isn't a valid number, return undefined.
 
 function addTogether() {
-    return false;
-  }
+  const [first, second] = Object.values(arguments);
   
-  addTogether(2,3);
+  if (typeof first !== "number") {
+    return undefined;
+  }
 
+    const addSecond = (second) => typeof second === "number" ? first + second : undefined;
 
+  
+  if (second !== undefined) {
+    return addSecond(second);
+  } else {
+    return addSecond
+  }
+}
+
+addTogether(2, 3);
 
 
 
@@ -398,16 +493,40 @@ function addTogether() {
 //   setFullName(firstAndLast)
 //   Run the tests to see the expected output for each method. The methods that take an argument must accept only one argument and it has to be a string. These methods must be the only available means of interacting with the object.
 var Person = function(firstAndLast) {
-    // Only change code below this line
-    // Complete the method below and implement the others similarly
-    this.getFullName = function() {
-      return "";
+    
+    var Person = function(firstAndLast) {
+      var fullName = firstAndLast;
+    
+      this.getFirstName = function() {
+        return fullName.split(" ")[0];
+      };
+    
+      this.getLastName = function() {
+        return fullName.split(" ")[1];
+      };
+    
+      this.getFullName = function() {
+        return fullName;
+      };
+    
+      this.setFirstName = function(name) {
+        fullName = name + " " + fullName.split(" ")[1];
+      };
+    
+      this.setLastName = function(name) {
+        fullName = fullName.split(" ")[0] + " " + name;
+      };
+    
+      this.setFullName = function(name) {
+        fullName = name;
+      };
     };
-    return firstAndLast;
-  };
-  
-  var bob = new Person('Bob Ross');
-  bob.getFullName();
+    
+    var bob = new Person("Bob Ross");
+    bob.getFullName();
+
+
+
 
 
 //   21 Intermediate Algorithm Scripting: Map the Debris
@@ -422,12 +541,30 @@ var Person = function(firstAndLast) {
 // The radius of the earth is 6367.4447 kilometers, and the GM value of earth is 398600.4418 km3s-2
 
 function orbitalPeriod(arr) {
-    var GM = 398600.4418;
-    var earthRadius = 6367.4447;
-    return arr;
+  var GM = 398600.4418;
+  var earthRadius = 6367.4447;
+  var a = 2 * Math.PI;
+  var newArr = [];
+
+  var getOrbPeriod = function(obj) {
+    var c = Math.pow(earthRadius + obj.avgAlt, 3);
+    var b = Math.sqrt(c / GM);
+    var orbPeriod = Math.round(a * b);
+    
+    return {name: obj.name, orbitalPeriod: orbPeriod};
+  };
+
+  for (var elem in arr) {
+    newArr.push(getOrbPeriod(arr[elem]));
   }
-  
-  orbitalPeriod([{name : "sputnik", avgAlt : 35873.5553}]);
+
+  return newArr;
+}
+
+orbitalPeriod([{ name: "sputnik", avgAlt: 35873.5553 }]);
+
+
+
 
 //   22JavaScript Algorithms and Data Structures Projects: Palindrome Checker
 // Return true if the given string is a palindrome. Otherwise, return false.
@@ -441,9 +578,11 @@ function orbitalPeriod(arr) {
 // We'll also pass strings with special symbols, such as "2A3*3a2", "2A3 3a2", and "2_A3*3#A2".
 
 function palindrome(str) {
-    return true;
+  str = str.toLowerCase().replace(/[\W_]/g, "");
+  for (var i = 0, len = str.length - 1; i < len / 2; i++) {
+    if (str[i] !== str[len - i]) {
+      return false;
+    }
   }
-  
-  
-  
-  palindrome("eye");
+  return true;
+}
